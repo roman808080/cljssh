@@ -1,0 +1,5 @@
+{:deps
+ {cljfx/cljfx {:git/url "https://github.com/cljfx/cljfx" :sha "10fb568" :git/tag "1.7.16"}
+  com.jsyn/jsyn {:mvn/version "20170815"}
+  com.jcraft/jsch {:mvn/version "0.1.55"}
+  org.apache.sshd/sshd-core {:mvn/version "2.7.0"}}}
