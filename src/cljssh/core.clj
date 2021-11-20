@@ -20,12 +20,16 @@
       (.auth)
       (.verify 1000)))
 
-;; (defn login-with)
-
 (comment (start-client))
 (comment (create-session "roman" "localhost" 22))
+
 (comment (-> (create-session "roman" "localhost" 22)
              (add-password "")
              (login)))
+
+comment (with-open [session (create-session "roman" "localhost" 22)]
+          (-> session
+           (add-password "")
+           (login)))
 
 (comment (stop-client))
