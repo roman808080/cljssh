@@ -4,6 +4,16 @@
             [clojure.walk :as walk])
   (:import [java.util Properties]))
 
+(defn convert-to-int [maybe-int]
+  (try
+    (Integer/parseInt maybe-int)
+    (catch java.lang.NumberFormatException error nil)))
+
+(defn convert-to-int-if [maybe-int]
+  (if-let [converted-int (convert-to-int maybe-int)]
+    converted-int
+    maybe-int))
+
 (defn load-properties [file-name]
   (with-open [reader (io/reader file-name)]
     (let [properties (Properties.)]
@@ -25,3 +35,5 @@
 
 (comment (load-properties "test.properties"))
 (comment (load-edn "properties.clj"))
+(comment (convert-to-int "3.4"))
+(comment (convert-to-int-if "34"))
