@@ -7,10 +7,8 @@
 (defn convert-to-int [maybe-int]
   (try
     (Integer/parseInt maybe-int)
-
 ;; if string does not have a number
     (catch java.lang.NumberFormatException _ nil)
-
     ;; if the object is not a string
     (catch ClassCastException _ nil)))
 
@@ -19,9 +17,15 @@
     converted-int
     maybe-int))
 
+(defn convert-to-int? [property-keyword]
+  (property-keyword #{:port}))
+
 (defn convert-properties-to-int [properties]
   (into {} (map
-            (fn [[k v]] {k (convert-to-int-if v)})
+            (fn [[k v]]
+              (if (convert-to-int? k)
+                {k (convert-to-int-if v)}
+                {k v}))
             properties)))
 
 (defn load-properties [file-name]
