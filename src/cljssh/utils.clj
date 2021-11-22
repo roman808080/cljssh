@@ -6,10 +6,13 @@
 
 (defn convert-to-int [maybe-int]
   (try
-    (if (string? maybe-int)
-      (Integer/parseInt maybe-int)
-      maybe-int)
-    (catch java.lang.NumberFormatException _ nil)))
+    (Integer/parseInt maybe-int)
+
+;; if string does not have a number
+    (catch java.lang.NumberFormatException _ nil)
+
+    ;; if the object is not a string
+    (catch ClassCastException _ nil)))
 
 (defn convert-to-int-if [maybe-int]
   (if-let [converted-int (convert-to-int maybe-int)]
@@ -22,12 +25,16 @@
             properties)))
 
 (defn load-properties [file-name]
-  (with-open [reader (io/reader file-name)]
-    (let [properties (Properties.)]
-      (.load properties reader)
-      (-> (into {} properties)
-          (walk/keywordize-keys)
-          (convert-properties-to-int)))))
+  (try
+    (with-open [reader (io/reader file-name)]
+      (let [properties (Properties.)]
+        (.load properties reader)
+        (-> (into {} properties)
+            (walk/keywordize-keys)
+            (convert-properties-to-int))))
+    (catch Exception e
+      (printf "Failed to load properties. Error = %s" (.getMessage e))
+      {})))
 
 (defn load-edn
   "Load edn from an io/reader source (filename or io/resource)."
