@@ -29,3 +29,6 @@ profiles.clj
 
 /.shadow-cljs/
 node_modules/
+
+# Other
+.temp

@@ -50,9 +50,11 @@
       (edn/read (java.io.PushbackReader. reader)))
 
     (catch java.io.IOException e
-      (printf "Couldn't open '%s': %s\n" source (.getMessage e)))
+      (printf "Couldn't open '%s': %s\n" source (.getMessage e))
+      {})
     (catch RuntimeException e
-      (printf "Error parsing edn file '%s': %s\n" source (.getMessage e)))))
+      (printf "Error parsing edn file '%s': %s\n" source (.getMessage e))
+      {})))
 
-(comment (load-properties "test.properties"))
-(comment (load-edn "properties.clj"))
+(comment (load-properties ".temp/test.properties"))
+(comment (load-edn ".temp/properties.clj"))
