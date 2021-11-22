@@ -4,10 +4,12 @@
             [clojure.walk :as walk])
   (:import [java.util Properties]))
 
+(def fields-to-convert #{:port})
+
 (defn convert-to-int [maybe-int]
   (try
     (Integer/parseInt maybe-int)
-;; if string does not have a number
+    ;; if string does not have a number
     (catch java.lang.NumberFormatException _ nil)
     ;; if the object is not a string
     (catch ClassCastException _ nil)))
@@ -18,7 +20,7 @@
     maybe-int))
 
 (defn convert-to-int? [property-keyword]
-  (property-keyword #{:port}))
+  (property-keyword fields-to-convert))
 
 (defn convert-properties-to-int [properties]
   (into {} (map
