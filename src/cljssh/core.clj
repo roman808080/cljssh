@@ -2,13 +2,12 @@
   (:require [cljssh.utils :as utils])
   (:import [org.apache.sshd.client SshClient]))
 
-(def client (. SshClient setUpDefaultClient))
 (def property-file ".temp/properties.clj")
 
-(defn start-client [] (.start client))
-(defn stop-client [] (.stop client))
+(defn start-client [client] (.start client))
+(defn stop-client [client] (.stop client))
 
-(defn create-session [user, host, port] (-> client
+(defn create-session [client user host port] (-> client
                                             (.connect user host port)
                                             (.verify 100)
                                             (.getSession)))
@@ -22,22 +21,19 @@
       (.auth)
       (.verify 1000)))
 
-(defn establish-connection [{:keys [host port user password]}]
-  (with-open [session (create-session user host port)]
-    (-> session
-        (add-password password)
-        (login))))
+(defn operate-on-connection [{:keys [host port user password]}]
+  (let [client (. SshClient setUpDefaultClient)]
+    (start-client client)
+
+     (with-open [session (create-session client user host port)]
+       (-> session
+           (add-password password)
+           (login)))
+
+     (stop-client client)))
 
 (defn -main []
-  (start-client)
   (-> (utils/load-edn property-file)
-      (establish-connection))
-  (stop-client))
-
-
-(comment (with-open [session (create-session "roman" "localhost" 22)]
-           (-> session
-               (add-password "")
-               (login))))
+      (operate-on-connection)))
 
 (comment (-main))
