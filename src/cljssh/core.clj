@@ -2,7 +2,9 @@
   (:require [cljssh.utils :as utils])
   (:import [org.apache.sshd.client SshClient]
            [org.apache.sshd.common.channel Channel]
-           [java.io ByteArrayOutputStream]))
+           [org.apache.sshd.client.channel ClientChannelEvent]
+           [java.io ByteArrayOutputStream]
+           [java.util EnumSet]))
 
 (def property-file ".temp/properties.clj")
 
@@ -26,14 +28,22 @@
 (defn execute-command [session command]
   (with-open [response-stream (ByteArrayOutputStream.)
               error-stream (ByteArrayOutputStream.)
-              channel (.createChannel session Channel/CHANNEL_SHELL command)]
+              channel (.createChannel session Channel/CHANNEL_EXEC command)]
     (doto channel
       (.setOut response-stream)
-      (.setErr error-stream)
-      )
+      (.setErr error-stream))
+
     (-> channel
         (.open)
-        (.verify 1000))))
+        (.verify 1000))
+
+    (with-open [pipe-in (.getInvertedIn channel)]
+      (doto pipe-in
+        (.write (.getBytes command))
+        (.flush))
+      (.waitFor channel [ClientChannelEvent/CLOSED] 1000)
+      (println (.toString error-stream))
+      (println (.toString response-stream)))))
 
 (defn operate-on-connection [{:keys [host port user password]}]
   (let [client (. SshClient setUpDefaultClient)]
@@ -43,7 +53,7 @@
       (-> session
           (add-password password)
           (login))
-      (execute-command session "dir"))
+      (execute-command session "ls -l"))
 
     (stop-client client)))
 
