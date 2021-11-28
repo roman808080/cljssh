@@ -3,16 +3,22 @@
   (:import [org.apache.sshd.client SshClient]
            [org.apache.sshd.common.channel Channel]
            [org.apache.sshd.client.channel ClientChannelEvent]
-           [java.io ByteArrayOutputStream]))
+           [java.io ByteArrayOutputStream]
+           [java.util.concurrent TimeUnit]))
 
 (def property-file ".temp/properties.clj")
+
+(def default-timeout-seconds 2)
+(def default-timeout-milseconds
+  (.toMillis TimeUnit/SECONDS default-timeout-seconds))
 
 (defn start-client [client] (.start client))
 (defn stop-client [client] (.stop client))
 
 (defn create-session [client user host port] (-> client
                                                  (.connect user host port)
-                                                 (.verify 100)
+                                                 (.verify default-timeout-seconds
+                                                          TimeUnit/SECONDS)
                                                  (.getSession)))
 
 (defn add-password [session password]
@@ -22,7 +28,8 @@
 (defn login [session]
   (-> session
       (.auth)
-      (.verify 1000)))
+      (.verify default-timeout-seconds
+               TimeUnit/SECONDS)))
 
 (defn execute-command [session command]
   (try
@@ -35,13 +42,14 @@
 
       (-> channel
           (.open)
-          (.verify 1000))
+          (.verify default-timeout-seconds TimeUnit/SECONDS))
 
       (with-open [pipe-in (.getInvertedIn channel)]
         (doto pipe-in
           (.write (.getBytes command))
           (.flush))
-        (.waitFor channel [ClientChannelEvent/CLOSED] 1000)
+        (.waitFor channel
+                  [ClientChannelEvent/CLOSED] default-timeout-milseconds)
 
         {:response (.toString response-stream)
          :error (.toString response-stream)}))
