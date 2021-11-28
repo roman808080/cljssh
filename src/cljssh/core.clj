@@ -3,8 +3,7 @@
   (:import [org.apache.sshd.client SshClient]
            [org.apache.sshd.common.channel Channel]
            [org.apache.sshd.client.channel ClientChannelEvent]
-           [java.io ByteArrayOutputStream]
-           [java.util EnumSet]))
+           [java.io ByteArrayOutputStream]))
 
 (def property-file ".temp/properties.clj")
 
@@ -26,24 +25,35 @@
       (.verify 1000)))
 
 (defn execute-command [session command]
-  (with-open [response-stream (ByteArrayOutputStream.)
-              error-stream (ByteArrayOutputStream.)
-              channel (.createChannel session Channel/CHANNEL_EXEC command)]
-    (doto channel
-      (.setOut response-stream)
-      (.setErr error-stream))
+  (try
+    (with-open [response-stream (ByteArrayOutputStream.)
+                error-stream (ByteArrayOutputStream.)
+                channel (.createChannel session Channel/CHANNEL_EXEC command)]
+      (doto channel
+        (.setOut response-stream)
+        (.setErr error-stream))
 
-    (-> channel
-        (.open)
-        (.verify 1000))
+      (-> channel
+          (.open)
+          (.verify 1000))
 
-    (with-open [pipe-in (.getInvertedIn channel)]
-      (doto pipe-in
-        (.write (.getBytes command))
-        (.flush))
-      (.waitFor channel [ClientChannelEvent/CLOSED] 1000)
-      (println (.toString error-stream))
-      (println (.toString response-stream)))))
+      (with-open [pipe-in (.getInvertedIn channel)]
+        (doto pipe-in
+          (.write (.getBytes command))
+          (.flush))
+        (.waitFor channel [ClientChannelEvent/CLOSED] 1000)
+
+        (println (.toString error-stream))
+        (println (.toString response-stream))
+
+        {:response (.toString response-stream)
+         :error (.toString response-stream)}))
+
+    (catch Exception exception
+      (printf "Exception has happened on execute-command. Error = %s\n" (.getMessage exception))
+
+      {:response ""
+       :error (.getMessage exception)})))
 
 (defn operate-on-connection [{:keys [host port user password]}]
   (let [client (. SshClient setUpDefaultClient)]
@@ -53,7 +63,7 @@
       (-> session
           (add-password password)
           (login))
-      (execute-command session "ls -l"))
+      (execute-command session "ls -l; cd Documents; ls -l"))
 
     (stop-client client)))
 
