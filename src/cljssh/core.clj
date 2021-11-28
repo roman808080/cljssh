@@ -56,16 +56,20 @@
        :error (.getMessage exception)})))
 
 (defn operate-on-connection [{:keys [host port user password]}]
-  (let [client (. SshClient setUpDefaultClient)]
-    (start-client client)
+  (try
+    (let [client (. SshClient setUpDefaultClient)]
+      (start-client client)
 
-    (with-open [session (create-session client user host port)]
-      (-> session
-          (add-password password)
-          (login))
-      (execute-command session "ls -l; cd Documents; ls -l"))
+      (with-open [session (create-session client user host port)]
+        (-> session
+            (add-password password)
+            (login))
+        (execute-command session "ls -l; cd Documents; ls -l"))
 
-    (stop-client client)))
+      (stop-client client))
+
+    (catch Exception exception
+      (printf "Exception has happened on execute-command. Error = %s\n" (.getMessage exception)))))
 
 (defn -main []
   (-> (utils/load-edn property-file)
