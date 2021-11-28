@@ -50,7 +50,10 @@
       {:response ""
        :error (.getMessage exception)})))
 
-(defn operate-on-connection [{:keys [host port user password]}]
+(defn operate-on-connection [{:keys
+                              [host port
+                               user password
+                               command]}]
   (try
     (let [client (. SshClient setUpDefaultClient)]
       (start-client client)
@@ -61,7 +64,7 @@
             (login))
 
         (let [{response :response error :error}
-              (execute-command session "ls -l; cd Documents; ls -l")]
+              (execute-command session command)]
 
           (if-not (empty? response)
             (printf "The response:\n%s" response)
