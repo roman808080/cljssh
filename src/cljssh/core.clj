@@ -1,8 +1,11 @@
 (ns cljssh.core
   (:require [cljssh.utils :as utils])
+
   (:import [org.apache.sshd.client SshClient]
            [org.apache.sshd.common.channel Channel]
            [org.apache.sshd.client.channel ClientChannelEvent]
+           [org.apache.sshd.scp.client ScpClientCreator ScpClient]
+
            [java.io ByteArrayOutputStream]
            [java.util.concurrent TimeUnit]))
 
@@ -58,6 +61,10 @@
       {:response ""
        :error (.getMessage exception)})))
 
+(defn copy-file [session source destination]
+  (let [scp-client-creator (ScpClientCreator/instance)
+        scp-client (.createScpClient scp-client-creator session)]))
+
 (defn operate-on-connection [{:keys
                               [host port
                                user password
@@ -88,3 +95,4 @@
       (operate-on-connection)))
 
 (comment (-main))
+(comment (ScpClientCreator/instance))
