@@ -71,7 +71,7 @@
             (add-password password)
             (login))
 
-        (let [{response :response error :error}
+        (let [{:keys [response error]}
               (execute-command session command)]
 
           (if-not (empty? response)
