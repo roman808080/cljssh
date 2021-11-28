@@ -43,15 +43,10 @@
           (.flush))
         (.waitFor channel [ClientChannelEvent/CLOSED] 1000)
 
-        (println (.toString error-stream))
-        (println (.toString response-stream))
-
         {:response (.toString response-stream)
          :error (.toString response-stream)}))
 
     (catch Exception exception
-      (printf "Exception has happened on execute-command. Error = %s\n" (.getMessage exception))
-
       {:response ""
        :error (.getMessage exception)})))
 
@@ -64,7 +59,13 @@
         (-> session
             (add-password password)
             (login))
-        (execute-command session "ls -l; cd Documents; ls -l"))
+
+        (let [{response :response error :error}
+              (execute-command session "ls -l; cd Documents; ls -l")]
+
+          (if-not (empty? response)
+            (printf "The response:\n%s" response)
+            (printf "The error:\n%s" error))))
 
       (stop-client client))
 
