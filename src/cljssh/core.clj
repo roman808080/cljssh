@@ -7,6 +7,7 @@
            [org.apache.sshd.scp.client ScpClientCreator ScpClient]
 
            [java.io ByteArrayOutputStream]
+           [java.nio.file Paths]
            [java.util.concurrent TimeUnit]))
 
 (def property-file ".temp/properties.clj")
@@ -61,14 +62,19 @@
       {:response ""
        :error (.getMessage exception)})))
 
-(defn copy-file [session source destination]
+(defn upload-file [session source destination]
   (let [scp-client-creator (ScpClientCreator/instance)
-        scp-client (.createScpClient scp-client-creator session)]))
+        scp-client (.createScpClient scp-client-creator session)]
+    (.upload scp-client
+             source
+             destination
+             [])))
 
 (defn operate-on-connection [{:keys
                               [host port
                                user password
-                               command]}]
+                               command
+                               source destination]}]
   (try
     (let [client (. SshClient setUpDefaultClient)]
       (start-client client)
@@ -81,9 +87,11 @@
         (let [{:keys [response error]}
               (execute-command session command)]
 
-          (if-not (empty? response)
+          (if (empty? error)
             (printf "The response:\n%s" response)
-            (printf "The error:\n%s" error))))
+            (printf "The error:\n%s" error)))
+
+        (upload-file session source destination))
 
       (stop-client client))
 
@@ -96,3 +104,4 @@
 
 (comment (-main))
 (comment (ScpClientCreator/instance))
+(comment (Paths/get "my/complicated/path"))
