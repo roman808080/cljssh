@@ -7,7 +7,6 @@
            [org.apache.sshd.scp.client ScpClientCreator]
 
            [java.io ByteArrayOutputStream]
-           [java.nio.file Paths]
            [java.util.concurrent TimeUnit]))
 
 (def property-file ".temp/properties.clj")
@@ -102,10 +101,5 @@
   (-> (utils/load-edn property-file)
       (operate-on-connection)))
 
-(defn path-join [p & ps]
-  (str (.normalize (java.nio.file.Paths/get p (into-array String ps)))))
-
 (comment (-main))
 (comment (ScpClientCreator/instance))
-(comment (Paths/get "my/complicated/path" (into-array String ["hell"])))
-(comment (path-join "my/complicated/path" "hell"))
