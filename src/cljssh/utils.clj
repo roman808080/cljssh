@@ -18,13 +18,13 @@
       {})))
 
 (defn get-str-array [& strings-to-convert]
-  (to-array strings-to-convert))
+  (into-array String strings-to-convert))
 
 (defn path-join [p & ps]
-  (str (.normalize (java.nio.file.Paths/get p (get-str-array ps)))))
+  (str (Paths/get p (apply get-str-array ps))))
 
 (defn get-path-object [str-path]
-  (Path/of str-path (into-array String [])))
+  (Path/of str-path (get-str-array)))
 
 (comment (load-edn ".temp/properties.clj"))
 (comment (Paths/get "my/complicated/path" (into-array String ["hell"])))
@@ -39,9 +39,6 @@
 (comment (class (to-array '(0))))
 (comment (make-array String 4))
 (comment (cast Number 1))
-
-;; (defn print-array [array-to-print]
-  ;; (amap))
 
 (comment (into-array String ""))
 (comment (into-array Number [1 2 3]))
@@ -60,3 +57,36 @@
                            (aget array-value idx))))
 
 (comment (aget second-array 0))
+
+(defn empty-function [& something]
+  something)
+
+(defn empty-function-convert-to-array [& something]
+  (into-array String something))
+
+(comment (str (Paths/get "my/complicated/path" (into-array String ["hell"]))))
+(comment (str (Paths/get "my/complicated/path" (into-array String []))))
+(comment (str (Paths/get "my/complicated/path" (into-array String nil))))
+(comment (str (Paths/get "my/complicated/path" (into-array String (empty-function)))))
+(comment (str (Paths/get "my/complicated/path" (empty-function-convert-to-array "hell"))))
+
+(comment (str (Paths/get "my/complicated/path" (get-str-array "hell"))))
+(comment (str (Paths/get "my/complicated/path" (apply get-str-array '("hell")))))
+(comment (str (Paths/get "my/complicated/path" (apply get-str-array '("step" "another" "hell")))))
+
+(comment (path-join "my/complicated/path" "hell" "another"))
+
+(comment (empty-function))
+(comment (empty-function (empty-function)))
+(comment (apply empty-function (empty-function)))
+
+(comment (empty-function 4))
+(comment (empty-function (empty-function 4)))
+(comment (apply empty-function (empty-function 4)))
+
+(comment (empty-function 2 3 4))
+(comment (empty-function (empty-function 2 3 4)))
+(comment (apply empty-function (empty-function 2 3 4)))
+
+(comment (empty-function nil))
+(comment (get-path-object "my/path"))
