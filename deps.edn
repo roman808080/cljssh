@@ -3,4 +3,5 @@
   org.apache.sshd/sshd-scp {:mvn/version "2.7.0"}
 
   org.slf4j/slf4j-api {:mvn/version "1.7.32"}
-  org.slf4j/slf4j-simple {:mvn/version "1.7.32"}}}
+  org.slf4j/slf4j-simple {:mvn/version "1.7.32"}
+  net.i2p.crypto/eddsa {:mvn/version "0.3.0"}}}
