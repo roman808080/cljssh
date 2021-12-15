@@ -62,7 +62,7 @@
   something)
 
 (defn empty-function-convert-to-array [& something]
-  (into-array String something))
+  (into-array Number something))
 
 (comment (str (Paths/get "my/complicated/path" (into-array String ["hell"]))))
 (comment (str (Paths/get "my/complicated/path" (into-array String []))))
@@ -87,6 +87,8 @@
 (comment (empty-function 2 3 4))
 (comment (empty-function (empty-function 2 3 4)))
 (comment (apply empty-function (empty-function 2 3 4)))
+
+(comment (apply empty-function-convert-to-array '(2 3 4)))
 
 (comment (empty-function nil))
 (comment (get-path-object "my/path"))
