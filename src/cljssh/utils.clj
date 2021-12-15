@@ -1,7 +1,7 @@
 (ns cljssh.utils
   (:require [clojure.java.io :as io]
             [clojure.edn :as edn])
-  (:import [java.nio.file Paths]))
+  (:import [java.nio.file Path Paths]))
 
 (defn load-edn
   "Load edn from an io/reader source (filename or io/resource)."
@@ -20,6 +20,11 @@
 (defn path-join [p & ps]
   (str (.normalize (java.nio.file.Paths/get p (into-array String ps)))))
 
+(defn get-path-object [str-path]
+  (Path/of str-path (into-array String [])))
+
 (comment (load-edn ".temp/properties.clj"))
 (comment (Paths/get "my/complicated/path" (into-array String ["hell"])))
 (comment (path-join "my/complicated/path" "hell"))
+(comment (get-path-object "/path/to/my/strange/path"))
+(comment (into-array String []))
