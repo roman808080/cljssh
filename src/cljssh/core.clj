@@ -41,13 +41,15 @@
 (defn empty-option-array []
   (into-array OpenOption nil))
 
+(defn load-key-pair-identities [file-path input-stream passphrase]
+  (SecurityUtils/loadKeyPairIdentities nil (PathResource. file-path) input-stream
+                                       (FilePasswordProvider/of passphrase)))
+
 (defn get-key [passphrase identity-file]
   (let [file-path (utils/path-object identity-file)]
     (with-open [input-stream (Files/newInputStream file-path (empty-option-array))]
-      (-> (SecurityUtils/loadKeyPairIdentities
-           nil (PathResource. file-path) input-stream
-           (FilePasswordProvider/of passphrase))
 
+      (-> (load-key-pair-identities file-path input-stream passphrase)
           (.iterator)
           (.next)))))
 
