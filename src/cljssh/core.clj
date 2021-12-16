@@ -11,7 +11,7 @@
 
            [java.io ByteArrayOutputStream]
            [java.util.concurrent TimeUnit]
-           [java.nio.file Files]))
+           [java.nio.file Files OpenOption]))
 
 (def property-file ".temp/properties.clj")
 
@@ -38,9 +38,12 @@
       (.verify default-timeout-seconds
                TimeUnit/SECONDS)))
 
+(defn empty-option-array []
+  (into-array OpenOption nil))
+
 (defn get-key [passphrase identity-file]
   (let [file-path (utils/path-object identity-file)]
-    (with-open [input-stream (Files/newInputStream file-path [])]
+    (with-open [input-stream (Files/newInputStream file-path (empty-option-array))]
       (-> (SecurityUtils/loadKeyPairIdentities
            nil (PathResource. file-path) input-stream
            (FilePasswordProvider/of passphrase))
@@ -116,3 +119,5 @@
       (operate-on-connection)))
 
 (comment (-main))
+(comment (let [{:keys [passphrase identity-file]} (utils/load-edn property-file)]
+           (get-key passphrase identity-file)))
