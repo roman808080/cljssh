@@ -5,9 +5,13 @@
            [org.apache.sshd.common.channel Channel]
            [org.apache.sshd.client.channel ClientChannelEvent]
            [org.apache.sshd.scp.client ScpClientCreator]
+           [org.apache.sshd.common.util.security SecurityUtils]
+           [org.apache.sshd.common.util.io.resource PathResource]
+           [org.apache.sshd.common.config.keys FilePasswordProvider]
 
            [java.io ByteArrayOutputStream]
-           [java.util.concurrent TimeUnit]))
+           [java.util.concurrent TimeUnit]
+           [java.nio.file Files]))
 
 (def property-file ".temp/properties.clj")
 
@@ -33,6 +37,16 @@
       (.auth)
       (.verify default-timeout-seconds
                TimeUnit/SECONDS)))
+
+(defn get-key [passphrase identity-file]
+  (let [file-path (utils/path-object identity-file)]
+    (with-open [input-stream (Files/newInputStream file-path [])]
+      (-> (SecurityUtils/loadKeyPairIdentities
+           nil (PathResource. file-path) input-stream
+           (FilePasswordProvider/of passphrase))
+
+          (.iterator)
+          (.next)))))
 
 (defn execute-command [session command]
   (try
@@ -102,4 +116,3 @@
       (operate-on-connection)))
 
 (comment (-main))
-(comment (ScpClientCreator/instance))
