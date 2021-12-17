@@ -32,6 +32,10 @@
   (doto session
     (.addPasswordIdentity password)))
 
+(defn add-key [session key-pair]
+  (doto session
+    (.addPublicKeyIdentity key-pair)))
+
 (defn login [session]
   (-> session
       (.auth)
@@ -92,14 +96,16 @@
                               [host port
                                user password
                                command
-                               source destination]}]
+                               source destination
+                               passphrase identity-file]}]
   (try
     (let [client (. SshClient setUpDefaultClient)]
       (start-client client)
 
       (with-open [session (create-session client user host port)]
         (-> session
-            (add-password password)
+            ;; (add-password password)
+            (add-key (get-key passphrase identity-file))
             (login))
 
         (let [{:keys [response error]}
