@@ -92,6 +92,18 @@
              destination
              [])))
 
+(defn add-authentification-identities [session auth-map]
+  (if-let [{:keys [password]} auth-map]
+    (.addPasswordIdentity session password)
+    :not-found)
+
+  (if-let [{:keys [passphrase identity-file]} auth-map]
+    (.addPublicKeyIdentity session
+                           (get-key passphrase identity-file))
+    :not-found)
+
+  session)
+
 (defn operate-on-connection [{:keys
                               [host port
                                user password
@@ -129,3 +141,6 @@
 (comment (-main))
 (comment (let [{:keys [passphrase identity-file]} (utils/load-edn property-file)]
            (get-key passphrase identity-file)))
+
+(comment (let [{:keys [passphrase identity-file] :as all-keys}  (utils/load-edn property-file)]
+           (list passphrase identity-file all-keys)))
