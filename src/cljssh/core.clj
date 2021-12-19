@@ -88,7 +88,8 @@
                                        {:keys [password passphrase identity-file]}]
   (when password
     (.addPasswordIdentity session password))
-
+  
+  ;; TODO: Adding handling of a situation when we have the identity file, but do not have passphrase.
   (when (and passphrase identity-file)
     (.addPublicKeyIdentity session
                            (get-key passphrase identity-file)))
