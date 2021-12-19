@@ -88,11 +88,15 @@
                                        {:keys [password passphrase identity-file]}]
   (when password
     (.addPasswordIdentity session password))
-  
+
   ;; TODO: Adding handling of a situation when we have the identity file, but do not have passphrase.
   (when (and passphrase identity-file)
     (.addPublicKeyIdentity session
                            (get-key passphrase identity-file)))
+
+  (when (every? nil? [password passphrase identity-file])
+    (throw (ex-message
+            "Does not have identities")))
 
   session)
 
@@ -129,3 +133,7 @@
       (operate-on-connection)))
 
 (comment (-main))
+
+;; (def )
+
+(comment (every? nil? [nil nil 1]))
