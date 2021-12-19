@@ -84,15 +84,14 @@
              destination
              [])))
 
-(defn add-authentification-identities [session auth-map]
-  (if-let [{:keys [password]} auth-map]
-    (.addPasswordIdentity session password)
-    :not-found)
+(defn add-authentification-identities [session
+                                       {:keys [password passphrase identity-file]}]
+  (when password
+    (.addPasswordIdentity session password))
 
-  (if-let [{:keys [passphrase identity-file]} auth-map]
+  (when (and passphrase identity-file)
     (.addPublicKeyIdentity session
-                           (get-key passphrase identity-file))
-    :not-found)
+                           (get-key passphrase identity-file)))
 
   session)
 
@@ -159,3 +158,14 @@
   (if-let [{:keys []} {}]
     (list nil nil)
     :not-found))
+
+(comment
+  (if-let [{:keys []} nil]
+    (list nil nil)
+    :not-found))
+
+(comment (if (not= 33 0) 1 0))
+(comment (if nil 33 0) 1 0)
+
+(comment (when (and 0 0) 2))
+(comment (when (or nil 0) 2))
