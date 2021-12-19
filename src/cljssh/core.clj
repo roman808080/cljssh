@@ -28,14 +28,6 @@
                                                           TimeUnit/SECONDS)
                                                  (.getSession)))
 
-(defn add-password [session password]
-  (doto session
-    (.addPasswordIdentity password)))
-
-(defn add-key [session key-pair]
-  (doto session
-    (.addPublicKeyIdentity key-pair)))
-
 (defn login [session]
   (-> session
       (.auth)
@@ -106,18 +98,16 @@
 
 (defn operate-on-connection [{:keys
                               [host port
-                               user password
+                               user
                                command
-                               source destination
-                               passphrase identity-file]}]
+                               source destination] :as all-keys}]
   (try
     (let [client (. SshClient setUpDefaultClient)]
       (start-client client)
 
       (with-open [session (create-session client user host port)]
         (-> session
-            ;; (add-password password)
-            (add-key (get-key passphrase identity-file))
+            (add-authentification-identities all-keys)
             (login))
 
         (let [{:keys [response error]}
