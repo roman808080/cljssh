@@ -134,3 +134,28 @@
 
 (comment (let [{:keys [passphrase identity-file] :as all-keys}  (utils/load-edn property-file)]
            (list passphrase identity-file all-keys)))
+
+(comment (if-let [a nil] 1 0))
+(comment (if-let [a 1] 1 0))
+(comment (let [a 1 b nil] 1 0))
+
+(comment
+  (if-let [{:keys [passphrase identity-file]} {:passphrase "nothing" :identity-file "path/to/the/file"}]
+    (list passphrase identity-file)
+    :not-found))
+
+(comment
+  (if-let [{:keys [passphrase identity-file]} {:passphrase "nothing"}]
+    (list passphrase identity-file)
+    :not-found))
+
+(comment
+  (if-let [{:keys [passphrase identity-file]} {}]
+    (list passphrase identity-file)
+    :not-found))
+
+
+(comment
+  (if-let [{:keys []} {}]
+    (list nil nil)
+    :not-found))
