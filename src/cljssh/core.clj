@@ -134,10 +134,3 @@
       (operate-on-connection)))
 
 (comment (-main))
-
-(comment (every? nil? [nil nil 1]))
-
-(comment (when (every? nil? [nil nil nil])
-  (throw (ex-info
-          "Does not have any identities"
-          {}))))
