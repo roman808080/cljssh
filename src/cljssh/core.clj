@@ -95,8 +95,9 @@
                            (get-key passphrase identity-file)))
 
   (when (every? nil? [password passphrase identity-file])
-    (throw (ex-message
-            "Does not have identities")))
+    (throw (ex-info
+            "Does not have any identities"
+            {})))
 
   session)
 
@@ -134,6 +135,9 @@
 
 (comment (-main))
 
-;; (def )
-
 (comment (every? nil? [nil nil 1]))
+
+(comment (when (every? nil? [nil nil nil])
+  (throw (ex-info
+          "Does not have any identities"
+          {}))))
