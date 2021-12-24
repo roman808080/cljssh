@@ -1,7 +1,7 @@
 (ns cljssh.utils
   (:require [clojure.java.io :as io]
             [clojure.edn :as edn])
-  (:import [java.nio.file Path Paths]))
+  (:import [java.nio.file Paths]))
 
 (defn load-edn
   "Load edn from an io/reader source (filename or io/resource)."
