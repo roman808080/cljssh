@@ -15,18 +15,23 @@
   (-> (utils/path-object auth-keys-file)
       (DefaultAuthorizedKeysAuthenticator. false (empty-link-option-array))))
 
-(defn run-server [server port]
+(defn create-simple-generator-host-key-provider [key-ser-file]
+  (SimpleGeneratorHostKeyProvider.
+   (utils/path-object key-ser-file)))
+
+(defn run-server [server key-ser-file auth-keys-file port]
   (doto server
     (.setPort port)
-    (.setKeyPairProvider (SimpleGeneratorHostKeyProvider. (utils/path-object "key.ser")))
+    (.setKeyPairProvider
+     (create-simple-generator-host-key-provider key-ser-file))
     (.setPublickeyAuthenticator
-     (create-default-key-authentificator ".temp/testkeys/authorized_keys"))
+     (create-default-key-authentificator auth-keys-file))
     (.start)))
 
 (defn stop-server [server]
   (.stop server))
 
 (comment (def server (create-default-server)))
-(comment (run-server server 2222))
+(comment (run-server server "key.ser" ".temp/testkeys/authorized_keys" 2222))
 (comment (stop-server server))
 (comment (create-default-key-authentificator ".temp/testkeys/authorized_keys"))
