@@ -2,9 +2,9 @@
   (:require [cljssh.utils :as utils])
   (:import [org.apache.sshd.server SshServer]
            [java.nio.file LinkOption]
-           [org.apache.sshd.server.shell ProcessShellFactory]
            [org.apache.sshd.server.keyprovider SimpleGeneratorHostKeyProvider]
-           [org.apache.sshd.server.config.keys DefaultAuthorizedKeysAuthenticator]))
+           [org.apache.sshd.server.config.keys DefaultAuthorizedKeysAuthenticator]
+           [org.apache.sshd.server.shell InteractiveProcessShellFactory]))
 
 (defn create-default-server []
   (SshServer/setUpDefaultServer))
@@ -20,12 +20,6 @@
   (SimpleGeneratorHostKeyProvider.
    (utils/path-object key-ser-file)))
 
-(defn get-string-array [string-seq]
-  (into-array String string-seq))
-
-(defn create-shell-factory [command & args]
-  (ProcessShellFactory. command (get-string-array (cons command args))))
-
 (defn run-server [server key-ser-file auth-keys-file port]
   (doto server
     (.setPort port)
@@ -34,7 +28,7 @@
     (.setPublickeyAuthenticator
      (create-default-key-authentificator auth-keys-file))
     (.setShellFactory
-     (create-shell-factory "/bin/bash" "-i" "-l"))
+     (InteractiveProcessShellFactory.))
     (.start)))
 
 (defn stop-server [server]
