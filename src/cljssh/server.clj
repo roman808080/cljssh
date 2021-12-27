@@ -20,7 +20,8 @@
   (SimpleGeneratorHostKeyProvider.
    (utils/path-object key-ser-file)))
 
-(defn run-server [server key-ser-file auth-keys-file port]
+(defn run-server [server
+                  {:keys [key-ser-file auth-keys-file port]}]
   (doto server
     (.setPort port)
     (.setKeyPairProvider
@@ -35,5 +36,9 @@
   (.stop server))
 
 (comment (def server (create-default-server)))
-(comment (run-server server "key.ser" ".temp/testkeys/authorized_keys" 2222))
+(comment (def server-attributes {:key-ser-file "key.ser"
+                                 :auth-keys-file ".temp/testkeys/authorized_keys"
+                                 :port 2222}))
+
+(comment (run-server server server-attributes))
 (comment (stop-server server))
